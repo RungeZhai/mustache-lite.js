@@ -1,6 +1,6 @@
 # mustache-lite.js
 
-A lightweight implementation of mustache.js.  https://github.com/janl/mustache.js
+A lightweight implementation of [mustache.js](https://github.com/janl/mustache.js)
 
 ## What is this?
 
