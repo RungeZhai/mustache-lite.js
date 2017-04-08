@@ -4,7 +4,7 @@ A lightweight implementation of mustache.js.  https://github.com/janl/mustache.j
 
 ## What is this?
 
-The gorgeous [mustache.js](https://github.com/janl/mustache.js) is a master piece out of question. But the source code up to now is more than 600 lines and the minimized file is still more than 9KB. I think with the advantage of regular expression, it should have another way, a more clear way, to implement it. So here it is.
+The gorgeous [mustache.js](https://github.com/janl/mustache.js) is a masterpiece out of question. But the source code up to now is more than 600 lines and the minimized file is still more than 9KB. I think with the advantage of regular expression, it should have another way, a more clear way, to implement it. So here it is.
 
 I have now just implemented basic features. The features that are not supported **yet** are:
 
