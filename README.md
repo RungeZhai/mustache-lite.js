@@ -8,7 +8,6 @@ The gorgeous [mustache.js](https://github.com/janl/mustache.js) is a masterpiece
 
 I have now just implemented basic features. The features that are not supported **yet** are:
 
-* HTML-escaping ✘
 * Custom Delimiters ✘
 * function as the value of a section key ✘
 * comments ✘
