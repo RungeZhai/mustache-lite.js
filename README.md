@@ -9,13 +9,12 @@ The gorgeous [mustache.js](https://github.com/janl/mustache.js) is a masterpiece
 I have now just implemented basic features. The features that are not supported **yet** are:
 
 * Custom Delimiters ✘
-* function as the value of a section key ✘
 * comments ✘
 * Partials ✘
 * Pre-parsing and Caching Templates ✘
 
-Up to now the source code is only 2.6k with 92 lines of code. It is minimal runable. This project is still in progress but if you don't need the features above, it is complete.
+Up to now the source code is only 2.6k with 96 lines of code. It is minimal runable. This project is still in progress but if you don't need the features above, it is complete.
 
 ## About performance
 
-Sadly the performance of this implementation is slower(On Chrome it is 1.3 times slower and on firefox8 it can be 5 to 7 times slower). But hopefully the time it consumes for one process is still only a couple of milliseconds.
+Because this implementation uses full scope regexp, so the larger the template is, relatively the slower it is.

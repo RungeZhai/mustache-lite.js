@@ -17,6 +17,10 @@ function render(template, data) {
         });
       } else if (dataType === '[object Object]') {
         result += render(innerTmpl, sectionData);
+      } else if (dataType === '[object Function]') {
+        result += sectionData.call(data, innerTmpl, function(template) {
+          return renderSingleSection(template, data);
+        });
       } else {
         result += render(innerTmpl, data);
       }
@@ -71,7 +75,7 @@ function evalProp(obj, nestedProp) {
     }
   }
 
-  return (typeof(value) === 'function' ? value() : value);
+  return (typeof(value) === 'function' ? value.call(obj) : value);
 }
 
 var entityMap = {
