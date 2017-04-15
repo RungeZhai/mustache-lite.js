@@ -12,6 +12,7 @@ I have now just implemented basic features. The features that are not supported 
 * comments ✘
 * Partials ✘
 * Pre-parsing and Caching Templates ✘
+* Modularity ✘
 
 Up to now the source code is only 2.6k with 96 lines of code. It is minimal runable. This project is still in progress but if you don't need the features above, it is complete.
 
