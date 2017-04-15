@@ -1,31 +1,44 @@
 function render(template, data) {
-  var regExp = /{{\s*(\^|#)\s*(.+?)\s*}}([^]+?){{\s*\/\s*\2\s*}}/g;
+  var regExp = /(\n?[^\S\n]*){{\s*(\^|#)\s*(.+?)\s*}}([^\S\n]*)(\n?[^]+?)(\n?[^\S\n]*){{\s*\/\s*\3\s*}}([^\S\n]*)/g;
   var lastIndex = regExp.lastIndex = 0;
   var result = '', match;
 
   while (match = regExp.exec(template)) {
-    var key = match[2], flag = match[1], innerTmpl = match[3];
-    var templateBetweenSections = template.substring(lastIndex, match.index);
-    result += renderSingleSection(templateBetweenSections, data);
+    var matchIndex = match.index, flag = match[2], key = match[3], tmplInnerSection = match[5];
+
+    // space stripping
+    if (!(match[1] && match[5] && match[1][0] === '\n' && match[5][0] === '\n')) {
+      matchIndex += match[1].length;
+      tmplInnerSection = match[4] + tmplInnerSection;
+    }
+
+    if (!(match[6] && match[6][0] === '\n' && template[regExp.lastIndex] === '\n')) {
+      tmplInnerSection += match[6];
+      regExp.lastIndex -= match[7].length;
+    }
+
+    var tmplBetweenSections = template.substring(lastIndex, matchIndex);
+    result += renderSingleSection(tmplBetweenSections, data);
     
     var sectionData = evalProp(data, key);
     if (flag === '#' && sectionData) {
       var dataType = Object.prototype.toString.call(sectionData);
       if (dataType === '[object Array]') {
         sectionData.forEach(function (el) {
-          result += render(innerTmpl, el);
+          result += render(tmplInnerSection, el);
         });
       } else if (dataType === '[object Object]') {
-        result += render(innerTmpl, sectionData);
+        sectionData.parent = data;
+        result += render(tmplInnerSection, sectionData);
       } else if (dataType === '[object Function]') {
-        result += sectionData.call(data, innerTmpl, function(template) {
+        result += sectionData.call(data, tmplInnerSection, function(template) {
           return renderSingleSection(template, data);
         });
       } else {
-        result += render(innerTmpl, data);
+        result += render(tmplInnerSection, data);
       }
     } else if (flag === '^' && !sectionData) {
-      result += render(innerTmpl, data);
+      result += render(tmplInnerSection, data);
     }
     lastIndex = regExp.lastIndex;
   }
@@ -63,16 +76,28 @@ function renderSingleSection(template, data) {
 }
 
 function evalProp(obj, nestedProp) {
-  var value = obj;
-  if ((nestedProp = nestedProp.trim()) !== '.') {
-    var nestedProps = nestedProp.split('.');
-    for (var i = 0; i < nestedProps.length; ++i) {
-      var prop = nestedProps[i].trim();
-      value = value[prop];
-      if (value === undefined || value === null) {
-        break;
+  var context = obj, lookupHit = false, value;
+
+  while (value = context) {
+    if ((nestedProp = nestedProp.trim()) !== '.') {
+      var nestedProps = nestedProp.split('.');
+      for (var i = 0; i < nestedProps.length; ++i) {
+        var prop = nestedProps[i].trim();
+        if (i === nestedProps.length - 1) {
+          lookupHit = (typeof value === 'object' && (prop in value));
+        }
+        value = value[prop];
+        if (value === undefined || value === null) {
+          break;
+        }
       }
+    } else {
+      lookupHit = true;
     }
+
+    if (lookupHit) break;
+
+    context = context.parent;
   }
 
   return (typeof(value) === 'function' ? value.call(obj) : value);
