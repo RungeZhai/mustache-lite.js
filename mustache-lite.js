@@ -1,44 +1,42 @@
 function render(template, data) {
-  var regExp = /(\n?[^\S\n]*){{\s*(\^|#)\s*(.+?)\s*}}([^\S\n]*)(\n?[^]+?)(\n?[^\S\n]*){{\s*\/\s*\3\s*}}([^\S\n]*)/g;
+
+  if (typeof template !== 'string') {
+    throw new TypeError('Invalid template! Template should be a "string" ' +
+                        'but "' + Object.prototype.toString.call(template) + '" was given as the first ' +
+                        'argument for #render(template, view)');
+  }
+
+  // space stripping & preprocessing
+  template = template.replace(/\n[^\S\n]*{{\s*(\^|#|\/)\s*(.+?)\s*}}[^\S\n]*(?=\n)/g, function(match, $1, $2, offset, original) { return '{{' + $1 + $2 + '}}'; });
+
+  var regExp = /{{(\^|#)(.+?)}}([^]+?){{\/\2}}/g;
   var lastIndex = regExp.lastIndex = 0;
   var result = '', match;
 
   while (match = regExp.exec(template)) {
-    var matchIndex = match.index, flag = match[2], key = match[3], tmplInnerSection = match[5];
-
-    // space stripping
-    if (!(match[1] && match[5] && match[1][0] === '\n' && match[5][0] === '\n')) {
-      matchIndex += match[1].length;
-      tmplInnerSection = match[4] + tmplInnerSection;
-    }
-
-    if (!(match[6] && match[6][0] === '\n' && template[regExp.lastIndex] === '\n')) {
-      tmplInnerSection += match[6];
-      regExp.lastIndex -= match[7].length;
-    }
-
-    var tmplBetweenSections = template.substring(lastIndex, matchIndex);
-    result += renderSingleSection(tmplBetweenSections, data);
+    var key = match[2], flag = match[1], innerTmpl = match[3];
+    var templateBetweenSections = template.substring(lastIndex, match.index);
+    result += renderSingleSection(templateBetweenSections, data);
     
     var sectionData = evalProp(data, key);
     if (flag === '#' && sectionData) {
       var dataType = Object.prototype.toString.call(sectionData);
       if (dataType === '[object Array]') {
         sectionData.forEach(function (el) {
-          result += render(tmplInnerSection, el);
+          result += render(innerTmpl, el);
         });
       } else if (dataType === '[object Object]') {
         sectionData.parent = data;
-        result += render(tmplInnerSection, sectionData);
+        result += render(innerTmpl, sectionData);
       } else if (dataType === '[object Function]') {
-        result += sectionData.call(data, tmplInnerSection, function(template) {
+        result += sectionData.call(data, innerTmpl, function(template) {
           return renderSingleSection(template, data);
         });
       } else {
-        result += render(tmplInnerSection, data);
+        result += render(innerTmpl, data);
       }
     } else if (flag === '^' && !sectionData) {
-      result += render(tmplInnerSection, data);
+      result += render(innerTmpl, data);
     }
     lastIndex = regExp.lastIndex;
   }
