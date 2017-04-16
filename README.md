@@ -8,13 +8,29 @@ The gorgeous [mustache.js](https://github.com/janl/mustache.js) is a masterpiece
 
 I have now just implemented basic features. The features that are not supported **yet** are:
 
-* Custom Delimiters ✘
-* comments ✘
 * Partials ✘
 * Pre-parsing and Caching Templates ✘
 * Modularity ✘
 
-Up to now the source code is only 3.4k with 119 lines of code and 1.6k after minified. It is minimal runable. This project is still in progress but if you don't need the features above, it is complete.
+Up to now the source code is only 3.4k with 122 lines of code and 1.6k after minified. It is minimal runable. This project is still in progress but if you don't need the features above, it is complete.
+
+**Customize delimiters** feature is not fully supported. Another simpler way is introduced: anything that is between `{{%` and `%}}` will be rendered as is.
+
+So
+
+```
+{{%{{#key}} <p>%}}
+
+{{{%{{#key}} <p>%}}}
+```
+
+will be rendered as 
+
+```
+{{#key}} &lt;p&gt;
+
+{{#key}} <p>
+```
 
 ## About performance
 

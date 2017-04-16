@@ -7,7 +7,10 @@ function render(template, data) {
   }
 
   // space stripping & preprocessing
-  template = template.replace(/\n[^\S\n]*{{\s*(\^|#|\/)\s*(.+?)\s*}}[^\S\n]*(?=\n)/g, function(match, $1, $2, offset, original) { return '{{' + $1 + $2 + '}}'; });
+  template = template.replace(/\n[^\S\n]*{{\s*(!|\^|#|\/)\s*(.+?)\s*}}[^\S\n]*(?=\n)/g, 
+                              function(match, $1, $2, offset, original) {
+                                return '{{' + $1 + $2 + '}}';
+                              });
 
   var regExp = /{{(\^|#)(.+?)}}([^]+?){{\/\2}}/g;
   var lastIndex = regExp.lastIndex = 0;
@@ -47,7 +50,7 @@ function render(template, data) {
 }
 
 function renderSingleSection(template, data) {
-  var regExp = /{{{\s*(.+?)\s*}}}|{{&\s*(.+?)\s*}}|{{\s*(.+?)\s*}}/g;
+  var regExp = /{{{%(.+?)%}}}|{{{\s*(.+?)\s*}}}|{{&\s*(.+?)\s*}}|{{%(.+?)%}}|{{\s*(.+?)\s*}}/g;
   var lastIndex = regExp.lastIndex = 0;
   var result = '';
   var match;
@@ -57,10 +60,10 @@ function renderSingleSection(template, data) {
   while (match = regExp.exec(template)) {
 
     result += template.substring(lastIndex, match.index);
-    var matched = match[1] || match[2] || match[3];
-    var escape = match[3];
+    var matched = match[1] || match[2] || match[3] || match[4] || match[5];
+    var escape = match[5] || match[4];
 
-    var value = evalProp(data, matched);
+    var value = match[1] || match[4] || evalProp(data, matched);
     if (value !== undefined && value !== null) {
       result += escape ? escapeHtml('' + value) : value;
     }
