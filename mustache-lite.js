@@ -7,9 +7,11 @@ function render(template, data) {
   }
 
   // space stripping & preprocessing
-  template = template.replace(/\n[^\S\n]*{{\s*(!|\^|#|\/)\s*(.+?)\s*}}[^\S\n]*(?=\n)/g, 
+  template = template.replace(/\n[^\S\n]*{{\s*(!|\^|#|\/)\s*((((?!}}).)+?)\s*[^}])}}[^\S\n]*\n/g, 
                               function(match, $1, $2, offset, original) {
-                                return '{{' + $1 + $2 + '}}';
+                                // mimic Mustache.js space stripping
+                                var isFuncSectionStart = typeof evalProp(data, $2 = $2.trim()) === 'function' && $1 === '#';
+                                return '\n{{' + $1 + $2 + '}}' + (isFuncSectionStart ? '\n' : '');
                               });
 
   var regExp = /{{(\^|#)(.+?)}}([^]+?){{\/\2}}/g;
