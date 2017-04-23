@@ -66,7 +66,7 @@ function renderSingleSection(template, data) {
     var escape = match[5] || match[4];
 
     var value = match[1] || match[4] || evalProp(data, matched);
-    if (value !== undefined && value !== null) {
+    if (value !== void 0 && value !== null) {
       result += escape ? escapeHtml('' + value) : value;
     }
 
@@ -90,7 +90,7 @@ function evalProp(obj, nestedProp) {
           lookupHit = (typeof value === 'object' && (prop in value));
         }
         value = value[prop];
-        if (value === undefined || value === null) {
+        if (value === void 0 || value === null) {
           break;
         }
       }
